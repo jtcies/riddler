@@ -1,0 +1,50 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Congratulations, astronaut! You’ve been selected for the first manned mission to Mars. You are slated to spend five Earth-years on the surface of the red planet (1,825 Earth-days — you can ignore leap years).
+
+Conditions on the planet will be brutal, and they will be especially rough on the equipment required to keep you alive. In fact, it is known that exactly one vital piece of equipment will break each day. Therefore, you and the rest of the international team of astronauts will be sent with three 3D printers to print replacement parts for critical equipment.
+
+Each printer is manufactured in a different country, however, and therefore parts from one printer are not compatible with any of the other printers (that means no scavenging allowed). If something breaks on a 3D printer, you will have to use one of the other 3D printers to print a replacement part. Any part can be printed effectively instantly, though any given printer only has the power to print one piece a day.
+
+The Riddler Aeronautics and Space Administration (RASA) has tested all three printers and found that, in addition to the daily breakage of the vital life-support equipment, one has a 10 percent chance of something breaking on any given day, the second a 7.5 percent chance and the last a 5 percent chance. If you can’t quickly print a replacement part for any piece of vital equipment, you’ll die.
+
+What are the chances that you make it home alive?
+
+```{r}
+
+library(tidyverse)
+
+set.seed(2019)
+
+trip <- function() {
+  
+  days <- tibble(
+    day = 1:1825,
+    printer1 = sample(c(0,1), 1825, replace = TRUE, prob = c(.9, .1)),
+    printer2 = sample(c(0,1), 1825, replace = TRUE, prob = c(.925, .075)),
+    printer3 = sample(c(0,1), 1825, replace = TRUE, prob = c(.95, .05))
+  ) %>% 
+    mutate(
+      total_broken = printer1 + printer2 + printer3,
+      dead = if_else(total_broken < 3, 0, 1)
+    ) %>% 
+    arrange(desc(dead), desc(day))
+  
+  days$day[[1]]
+
+}
+
+1:100 %>% 
+  map(trip)
+
+
+
+```
+
