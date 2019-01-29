@@ -21,29 +21,48 @@ What are the chances that you make it home alive?
 
 library(tidyverse)
 
+theme_set(theme_minimal())
+
 set.seed(2019)
+
+days <- tibble(
+  day = 1:1825,
+  printer1 = integer(length = 1825),
+  printer2 = integer(length = 1825),
+  printer3 = integer(length = 1825)
+)
 
 trip <- function() {
   
-  days <- tibble(
-    day = 1:1825,
-    printer1 = sample(c(0,1), 1825, replace = TRUE, prob = c(.9, .1)),
-    printer2 = sample(c(0,1), 1825, replace = TRUE, prob = c(.925, .075)),
-    printer3 = sample(c(0,1), 1825, replace = TRUE, prob = c(.95, .05))
-  ) %>% 
+  trip_days <- days
+  
+  trip_days$printer1 <-  sample(c(0,1), 1825, replace = TRUE, prob = c(.9, .1))
+  trip_days$printer2 <-  sample(c(0,1), 1825, replace = TRUE, prob = c(.925, .075))
+  trip_days$printer3 <-  sample(c(0,1), 1825, replace = TRUE, prob = c(.95, .05))
+  
+  trip_days <- trip_days %>% 
     mutate(
       total_broken = printer1 + printer2 + printer3,
       dead = if_else(total_broken < 3, 0, 1)
     ) %>% 
     arrange(desc(dead), desc(day))
   
-  days$day[[1]]
+  trip_days$day[[1]]
 
 }
 
-1:100 %>% 
-  map(trip)
+trial_count <- 10000
 
+trials <- tibble(
+  trial_num = 1:trial_count,
+  result = map_int(1:trial_count, ~trip())
+)
+
+trials %>% 
+  ggplot(aes(result)) +
+    geom_histogram(binwidth = 20)
+
+mean(trials$result == 1825)
 
 
 ```
