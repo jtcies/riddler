@@ -1,0 +1,79 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+You meet someone on a street corner who’s standing at a table on which there are three decks of playing cards. He tells you his name is “Three Deck Monte.” Knowing this will surely end well, you inspect the decks. Each deck contains 12 cards …
+
+    Red Deck: four aces, four 9s, four 7s
+    Blue Deck: four kings, four jacks, four 6s
+    Black Deck: four queens, four 10s, four 8s
+
+The man offers you a bet: You pick one of the decks, he then picks a different one. You both shuffle your decks, and you compete in a short game similar to War. You each turn over cards one at a time, the one with a higher card wins that turn (aces are high), and the first to win five turns wins the bet. (There can’t be ties, as no deck contains any of the same cards as any other deck.)
+
+Should you take the bet? After all, you can pick any of the decks, which seems like it should give you an advantage against the dealer. If you take the bet, and the dealer picks the best possible counter deck each time, how often will you win?
+
+```{r}
+
+library(tidyverse)
+
+red <- c(rep(14, 4), rep(9, 4), rep(7, 4))
+blue <- c(rep(13, 4), rep(11, 4), rep(6, 4))
+black <- c(rep(12, 4), rep(10, 4), rep(8, 4))
+
+nrounds <- 10000
+
+play_game <- function(deck1, deck2) {
+  
+  game <- tibble(
+    deck1 = sample(deck1, 12),
+    deck2 = sample(deck2, 12)
+  )
+  
+  game <- game %>% 
+    mutate(
+      hand = if_else(deck1 > deck2, 1, 0),
+      score1 = cumsum(hand),
+      score2 = cumsum(!hand)
+    )
+  
+  winner <- if(any(game$score1 == 5 & game$score2 < 5)) TRUE else FALSE
+  
+  winner
+
+}
+
+play_multiple <- function(nrounds, deck1, deck2) {
+  
+  mean(1:nrounds %>% map_lgl(~ play_game(deck1, deck2)))
+  
+}
+
+best_deck <- function(nrounds) {
+  
+  red_over_black <- play_multiple(nrounds, red, black)
+  blue_over_black <- play_multiple(nrounds, blue, black)
+  blue_over_red <- play_multiple(nrounds, blue, red)
+  
+  tribble(
+    ~ matchup, ~ pct_win,
+    "red over black", red_over_black,
+    "blue over black", blue_over_black,
+    "blue over red", blue_over_red,
+    "black over red", 1 - red_over_black,
+    "black over blue", 1 - blue_over_black,
+    "red over blue", 1 - blue_over_red
+  ) %>% 
+    arrange(desc(pct_win))
+}
+
+set.seed(2019)
+
+best_deck(nrounds)
+
+```
+
