@@ -1,0 +1,50 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Given any three random integers — X, Y and Z — what are the chances that their product is divisible by 100?
+
+```{r}
+
+library(tidyverse)
+
+theme_set(theme_minimal())
+
+
+div_by_100 <- function(n, times) {
+  
+  a <- sample(1:n, times, replace = TRUE)
+  b <- sample(1:n, times, replace = TRUE)
+  c <- sample(1:n, times, replace = TRUE)
+  
+  dat <- tibble(a, b, c)
+  
+  dat$product <- dat$a * dat$b * dat$c
+  
+  mean(dat$product %% 100 == 0)
+}
+
+set.seed(2019)
+
+n <- 1000
+
+results <- tibble(
+  x = 1:n,
+  pct_div_by_100 = map_dbl(1:n, ~div_by_100(.x, 10000))
+)
+
+ggplot(results, aes(x, pct_div_by_100)) +
+    geom_line() +
+    scale_y_continuous(labels = scales::percent_format()) +
+    labs(
+      x = "range",
+      y = "percent divisible by 100"
+    )
+
+```
+

@@ -21,8 +21,8 @@ Should you take the bet? After all, you can pick any of the decks, which seems l
 
 library(tidyverse)
 
-red <- c(rep(14, 4), rep(9, 4), rep(7, 4))
-blue <- c(rep(13, 4), rep(11, 4), rep(6, 4))
+red   <- c(rep(14, 4), rep(9, 4), rep(7, 4))
+blue  <- c(rep(13, 4), rep(11, 4), rep(6, 4))
 black <- c(rep(12, 4), rep(10, 4), rep(8, 4))
 
 nrounds <- 10000
@@ -41,7 +41,7 @@ play_game <- function(deck1, deck2) {
       score2 = cumsum(!hand)
     )
   
-  winner <- if(any(game$score1 == 5 & game$score2 < 5)) TRUE else FALSE
+  winner <- if (any(game$score1 == 5 & game$score2 < 5)) TRUE else FALSE
   
   winner
 
@@ -55,18 +55,18 @@ play_multiple <- function(nrounds, deck1, deck2) {
 
 best_deck <- function(nrounds) {
   
-  red_over_black <- play_multiple(nrounds, red, black)
+  red_over_black  <- play_multiple(nrounds, red,  black)
   blue_over_black <- play_multiple(nrounds, blue, black)
-  blue_over_red <- play_multiple(nrounds, blue, red)
+  blue_over_red   <- play_multiple(nrounds, blue, red)
   
   tribble(
-    ~ matchup, ~ pct_win,
-    "red over black", red_over_black,
+    ~ matchup,         ~ pct_win,
+    "red over black",  red_over_black,
     "blue over black", blue_over_black,
-    "blue over red", blue_over_red,
-    "black over red", 1 - red_over_black,
+    "blue over red",   blue_over_red,
+    "black over red",  1 - red_over_black,
     "black over blue", 1 - blue_over_black,
-    "red over blue", 1 - blue_over_red
+    "red over blue",   1 - blue_over_red
   ) %>% 
     arrange(desc(pct_win))
 }
