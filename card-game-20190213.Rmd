@@ -40,10 +40,13 @@ results <- tibble(
 
 ggplot(results, aes(x, pct_div_by_100)) +
     geom_line() +
+    geom_hline(yintercept = 0.1243, linetype = 3)
     scale_y_continuous(labels = scales::percent_format()) +
     labs(
       x = "range",
-      y = "percent divisible by 100"
+      y = "percent divisible by 100",
+      title = "Percent of random products divisible by 100 for 1 to max",
+      subtitle = "represents 10,000 draws with at each possible max value"
     )
 
 ```
